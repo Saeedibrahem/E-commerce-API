@@ -12,7 +12,7 @@ A production-ready REST API for a simple e-commerce backend built with Express a
 - **Cart**: Per-user cart with priced items and ownership checks
 - **Orders**: Create orders from cart, per-user and admin/seller visibility
 - **Error Handling**: Centralized error handler and async error capture
-- **Health Check**: `/api/health`
+- **Health Check**: `/health`
 
 ## Tech Stack
 
@@ -57,7 +57,6 @@ JWT_EXPIRES=7d
 EMAIL_SERVICE=gmail
 EMAIL_USER=your-email@example.com
 EMAIL_PASS=your-app-password
-FRONTEND_URL=http://localhost:3000
 
 # Cloudinary
 CLOUDINARY_CLOUD_NAME=your-cloud-name
@@ -110,7 +109,7 @@ ecommerce-express-api/
 
 ## API Reference
 
-Base URL: `http://localhost:5000/api`
+Base URL: `http://localhost:5000`
 
 ### Auth
 
@@ -186,7 +185,7 @@ Base URL: `http://localhost:5000/api`
 Example (cURL):
 
 ```bash
-curl -X POST http://localhost:5000/api/products \
+curl -X POST http://localhost:5000/products \
   -H "Authorization: Bearer <TOKEN>" \
   -F "name=Sleek Chair" \
   -F "price=129.99" \
@@ -207,6 +206,11 @@ curl -X POST http://localhost:5000/api/products \
 ```bash
 npm start    # start with nodemon
 ```
+
+## API Docs (Swagger)
+
+- After starting the server, open `http://localhost:5000/api-docs` to view interactive docs.
+- Docs are generated from JSDoc in `routes/*.js` using `swagger-jsdoc` and served by `swagger-ui-express`.
 
 ---
 

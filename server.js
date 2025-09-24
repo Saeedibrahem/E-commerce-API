@@ -10,18 +10,25 @@ const productRoutes = require('./routes/products');
 const cartRoutes = require('./routes/carts');
 const orderRoutes = require('./routes/orders');
 
+// Swagger
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 // routes
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/carts', cartRoutes);
-app.use('/api/orders', orderRoutes);
+app.use('/auth', authRoutes);
+app.use('/products', productRoutes);
+app.use('/carts', cartRoutes);
+app.use('/orders', orderRoutes);
 
 // health
-app.get('/api/health', (req, res) => res.json({ ok: true }));
+app.get('/health', (req, res) => res.json({ ok: true }));
+
+// docs
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // error handler
 app.use(errorHandler);

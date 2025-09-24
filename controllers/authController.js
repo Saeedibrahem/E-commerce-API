@@ -25,16 +25,58 @@ exports.login = async (req, res) => {
 };
 
 exports.forgotPassword = async (req, res) => {
-  const { email } = req.body;
+  // Normalize and basic validation (avoid leaking existence)
+  const rawEmail = typeof req.body.email === 'string' ? req.body.email : '';
+  const email = rawEmail.trim().toLowerCase();
+
+  if (!email) {
+    return res.status(200).json({ message: 'If that email exists, a reset link has been sent.' });
+  }
+
   const user = await User.findOne({ email });
-  if (!user) return res.status(200).json({ message: 'If that email exists, a reset link has been sent.' }); // avoid enumeration
-  const token = crypto.randomBytes(32).toString('hex');
-  user.resetPasswordToken = token;
-  user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-  await user.save();
-  const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
-  await sendEmail(email, 'Password reset', `<p>Reset link: <a href="${resetUrl}">${resetUrl}</a></p>`);
-  res.json({ message: 'If that email exists, a reset link has been sent.' });
+  if (!user) {
+    return res.status(200).json({ message: 'If that email exists, a reset link has been sent.' });
+  }
+
+  // Reuse existing non-expired token to throttle requests; otherwise create a new one
+  let token = user.resetPasswordToken;
+  const tokenStillValid = user.resetPasswordExpires && user.resetPasswordExpires > Date.now();
+  if (!token || !tokenStillValid) {
+    token = crypto.randomBytes(32).toString('hex');
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
+    await user.save();
+  }
+
+  const baseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+  const resetUrl = `${baseUrl.replace(/\/$/, '')}/reset-password?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`;
+
+  const html = `
+    <div style="font-family:Arial,Helvetica,sans-serif;line-height:1.6;color:#222">
+      <h2>Password reset</h2>
+      <p>We received a request to reset the password for your account.</p>
+      <p>
+        Click the link below to set a new password (valid for 1 hour):
+      </p>
+      <p>
+        <a href="${resetUrl}" style="background:#2563eb;color:#fff;padding:10px 16px;text-decoration:none;border-radius:6px;display:inline-block">
+          Reset your password
+        </a>
+      </p>
+      <p>If the button doesn’t work, copy and paste this URL into your browser:</p>
+      <p style="word-break:break-all"><a href="${resetUrl}">${resetUrl}</a></p>
+      <p>If you didn’t request this, you can safely ignore this email.</p>
+    </div>
+  `;
+
+  try {
+    await sendEmail(email, 'Password reset', html);
+  } catch (err) {
+    // Do not leak errors; log and still return generic response
+    console.error('forgotPassword email send error:', err && err.message ? err.message : err);
+  }
+
+  return res.json({ message: 'If that email exists, a reset link has been sent.' });
 };
 
 exports.resetPassword = async (req, res) => {
