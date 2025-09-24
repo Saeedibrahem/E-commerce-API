@@ -11,7 +11,7 @@ const orderCtrl = require('../controllers/orderController');
 
 /**
  * @openapi
- * /api/orders:
+ * /orders:
  *   post:
  *     tags: [Orders]
  *     summary: Create an order from my cart
@@ -33,7 +33,7 @@ const orderCtrl = require('../controllers/orderController');
 router.post('/', auth, orderCtrl.createOrder);
 /**
  * @openapi
- * /api/orders/{id}:
+ * /orders/{id}:
  *   get:
  *     tags: [Orders]
  *     summary: Get order by id (owner/admin or seller owning a product in it)
@@ -51,7 +51,7 @@ router.post('/', auth, orderCtrl.createOrder);
 router.get('/:id', auth, orderCtrl.getOrder);
 /**
  * @openapi
- * /api/orders/user/{userId}:
+ * /orders/user/{userId}:
  *   get:
  *     tags: [Orders]
  *     summary: Get orders for a user (same user or admin)

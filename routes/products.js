@@ -14,7 +14,7 @@ const productCtrl = require('../controllers/productController');
 // public listing
 /**
  * @openapi
- * /api/products/public:
+ * /products/public:
  *   get:
  *     tags: [Products]
  *     summary: Public listing
@@ -35,7 +35,7 @@ router.get('/:id', productCtrl.getProduct);
 // protected search for registered users only
 /**
  * @openapi
- * /api/products:
+ * /products:
  *   get:
  *     tags: [Products]
  *     summary: Search products (requires auth)
@@ -61,7 +61,7 @@ router.get('/', auth, productCtrl.searchProducts);
 // seller CRUD - must be authenticated and seller role (or admin)
 /**
  * @openapi
- * /api/products:
+ * /products:
  *   post:
  *     tags: [Products]
  *     summary: Create product (seller/admin)
@@ -92,7 +92,7 @@ router.delete('/:id', auth, productCtrl.deleteProduct);
 // seller products
 /**
  * @openapi
- * /api/products/seller/{sellerId}:
+ * /products/seller/{sellerId}:
  *   get:
  *     tags: [Products]
  *     summary: Get products for a seller (auth; same seller or admin)
